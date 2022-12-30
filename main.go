@@ -28,4 +28,21 @@ func main() {
 		}
 		fmt.Println()
 	}
+
+	x := 0
+	for y := 0; y < 3; y++ {
+		if y == 2 {
+			y++
+		}
+
+		fmt.Printf("Move %v to position (%v,%v)\n", player1, x, y)
+
+		err := player1.Move(x, y)
+
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			fmt.Println("Player moved", player1)
+		}
+	}
 }
