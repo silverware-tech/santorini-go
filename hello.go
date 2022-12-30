@@ -2,6 +2,13 @@ package main
 
 import "fmt"
 
+func test(test string) {
+	fmt.Println(test)
+}
+
 func main() {
-    fmt.Println("Hello, World!")
+	var testvar = "test"
+
+	fmt.Println("Hello, World!")
+	test(testvar)
 }
