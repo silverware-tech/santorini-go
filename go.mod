@@ -1,3 +1,3 @@
-module santorini/hello
+module santorini/main
 
 go 1.19
