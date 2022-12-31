@@ -17,7 +17,7 @@ func main() {
 
 	for !game.IsOver() {
 		groups := game.GetGroups()
-		for i := 0; i < len(groups); {
+		for i := 0; i < numberOfPlayers; {
 			var characterToMove int
 			var newX, newY int
 
@@ -26,7 +26,7 @@ func main() {
 			game.GetBoard().Print()
 			fmt.Println("Player", group[0].GetGroup(), "turn")
 
-			fmt.Printf("What character to move (%v,%v):", group[0].GetName(), group[1].GetName())
+			fmt.Print("What character to move (1,2):")
 			fmt.Scan(&characterToMove)
 			player := group[characterToMove-1]
 
