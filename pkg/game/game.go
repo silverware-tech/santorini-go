@@ -33,8 +33,8 @@ func New(numberOfPlayers int) Game {
 	return g
 }
 
-func (g *Game) GetPlayers() [MAX_PLAYERS]player.Player {
-	return g.players
+func (g *Game) GetPlayers() []player.Player {
+	return g.players[0 : MAX_PLAYERS]
 }
 
 // get players grouped by groups

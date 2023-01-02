@@ -2,15 +2,23 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"santorini/main/pkg/game"
+
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 func main() {
+	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
+
+    log.Logger = log.With().Caller().Logger().Output(zerolog.ConsoleWriter{Out: os.Stderr})
+
 	var numberOfPlayers int
 
-	fmt.Println("Hello, Santorini!")
+	log.Info().Msg("Hello, Santorini!")
 
-	fmt.Print("Number of players:")
+	log.Info().Msg("Number of players:")
 	fmt.Scan(&numberOfPlayers)
 
 	game := game.New(numberOfPlayers)
@@ -24,25 +32,25 @@ func main() {
 			group := groups[i]
 
 			game.GetBoard().Print()
-			fmt.Println("Player", group[0].GetGroup(), "turn")
+			log.Info().Msgf("Player %v turn", group[0].GetGroup())
 
-			fmt.Print("What character to move (1,2):")
+			log.Info().Msg("What character to move (1,2):")
 			fmt.Scan(&characterToMove)
 			player := group[characterToMove-1]
 
-			fmt.Print("Where to move (X):")
+			log.Info().Msg("Where to move (X):")
 			fmt.Scan(&newX)
-			fmt.Print("Where to move (Y):")
+			log.Info().Msg("Where to move (Y):")
 			fmt.Scan(&newY)
 
-			fmt.Printf("Move %v to position (%v,%v)\n", player, newX, newY)
+			log.Info().Msgf("Move %v to position (%v,%v)\n", player, newX, newY)
 
 			err := player.Move(newX, newY)
 
 			if err != nil {
-				fmt.Println(err)
+				log.Info().Msg(err.Error())
 			} else {
-				fmt.Println("Player moved", player)
+				log.Info().Msgf("Player %v moved", player.GetName())
 				i++
 			}
 		}
