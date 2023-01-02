@@ -4,6 +4,7 @@
 Remake of Santorini board game in Go language.
 
 ## Rules
+
 The youngest player is the Start Player.
 
 Players take turns, starting with the Start Player, who first placed their Workers. On your turn, select one of your Workers. You must **move** and then **build** with the selected Worker.
