@@ -1,11 +1,12 @@
 package cell
 
 import (
-	"santorini/main/pkg/player"
+	character "santorini/main/pkg/Character"
 	"santorini/main/pkg/customError"
 )
 
 type CellStatus int
+
 const (
 	GROUND CellStatus = iota
 	L1
@@ -15,40 +16,52 @@ const (
 )
 
 type Cell struct {
-	Worker *player.Player
-	Status   CellStatus
+	Character *character.Character
+	Height    CellStatus
 }
 
 func New() Cell {
 	return Cell{
-		Worker: nil,
-		Status: GROUND,
+		Character: nil,
+		Height:    GROUND,
 	}
 }
 
 func (c *Cell) buildOn() error {
 	switch {
-	case c.Worker != nil:
+	case c.Character != nil:
 		return customError.CellBuildError{
 			ErrorStr: "Can not build on occupied cell",
 		}
-	case c.Status == DOME:
+	case c.Height == DOME:
 		return customError.CellBuildError{
 			ErrorStr: "Can not build on a complete tower",
 		}
-	case c.Status == GROUND:
-		c.Status = L1
-	case c.Status == L1:
-		c.Status = L2
-	case c.Status == L2:
-		c.Status = L3
-	case c.Status == L3:
-		c.Status = DOME
+	case c.Height == GROUND:
+		c.Height = L1
+	case c.Height == L1:
+		c.Height = L2
+	case c.Height == L2:
+		c.Height = L3
+	case c.Height == L3:
+		c.Height = DOME
 	}
 
 	return nil
 }
 
-func (c *Cell) setWorker(worker *player.Player) {
-	c.Worker = worker
+func (c *Cell) setWorker(Character *character.Character) {
+	c.Character = Character
+}
+
+func (c *Cell) removeWorker() {
+	c.Character = nil
+}
+
+func (c *Cell) getCharacter() *character.Character {
+	return c.Character
+}
+
+func (c *Cell) getHeight() CellStatus {
+	return c.Height
 }
