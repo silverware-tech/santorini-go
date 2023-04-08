@@ -1,11 +1,12 @@
 package customError
+
 import "fmt"
 
 type PlayerMoveError struct {
-	PlayerName	string
-	PlayerX		int
-	PlayerY		int
-	ErrorStr	string
+	PlayerName string
+	PlayerX    int
+	PlayerY    int
+	ErrorStr   string
 }
 
 func (error PlayerMoveError) Error() string {

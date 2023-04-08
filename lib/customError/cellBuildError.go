@@ -3,7 +3,7 @@ package customError
 import "fmt"
 
 type CellBuildError struct {
-	ErrorStr	string
+	ErrorStr string
 }
 
 func (error CellBuildError) Error() string {

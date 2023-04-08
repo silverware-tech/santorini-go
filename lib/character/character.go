@@ -1,11 +1,13 @@
 package character
 
 import (
-	"santorini/main/pkg/player"
+	"github.com/c2r0b/santorini.git/lib/player"
 )
 
 type Character struct {
 	player *player.Player
+	X      int
+	Y      int
 }
 
 func New(player *player.Player) Character {
