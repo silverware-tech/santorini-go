@@ -1,9 +1,8 @@
 package main
 
 import (
-	"fmt"
+	"github.com/c2r0b/santorini.git/lib/game"
 	"os"
-	"santorini/main/pkg/game"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -14,13 +13,10 @@ func main() {
 
 	log.Logger = log.With().Caller().Logger().Output(zerolog.ConsoleWriter{Out: os.Stderr})
 
-	var numberOfPlayers int
-
 	log.Info().Msg("Hello, Santorini!")
+	var setup = game.AskSetup()
 
-	log.Info().Msg("Number of players:")
-	fmt.Scan(&numberOfPlayers)
+	gameManager := game.New(setup)
 
-	game := game.New(numberOfPlayers)
-	game.Start()
+	gameManager.Start()
 }

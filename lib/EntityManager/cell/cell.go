@@ -1,8 +1,8 @@
 package cell
 
 import (
-	character "santorini/main/pkg/Character"
-	"santorini/main/pkg/customError"
+	"github.com/c2r0b/santorini.git/lib/character"
+	"github.com/c2r0b/santorini.git/lib/customError"
 )
 
 type CellStatus int
