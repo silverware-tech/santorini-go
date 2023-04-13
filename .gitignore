@@ -1,2 +1,8 @@
 #vscode
 /.vscode/
+
+/.idea/.gitignore
+/go.sum
+/.idea/modules.xml
+/.idea/santorini.iml
+/.idea/vcs.xml
