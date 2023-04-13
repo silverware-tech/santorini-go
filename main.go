@@ -14,7 +14,9 @@ func main() {
 	log.Logger = log.With().Caller().Logger().Output(zerolog.ConsoleWriter{Out: os.Stderr})
 
 	log.Info().Msg("Hello, Santorini!")
+	var setup = game.AskSetup()
 
-	gameManager := game.New()
+	gameManager := game.New(setup)
+
 	gameManager.Start()
 }
