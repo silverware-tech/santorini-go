@@ -2,10 +2,11 @@ package game
 
 import (
 	"fmt"
+	"strconv"
+
 	"github.com/c2r0b/santorini.git/lib/character"
 	"github.com/c2r0b/santorini.git/lib/player"
 	"github.com/rs/zerolog/log"
-	"strconv"
 )
 
 /**
@@ -18,8 +19,7 @@ In AskSetup bisogna mettere tutte quelle cose di input iniziali:
 */
 
 type Setup struct {
-	Players    []player.Player
-	Characters []character.Character
+	Players []player.Player
 }
 
 func AskValue(message string, min, max int) int {
@@ -44,17 +44,25 @@ func AskSetup() Setup {
 	var numberOfPlayers = AskValue("Number of players:", MIN_PLAYERS, MAX_PLAYERS)
 
 	var players = make([]player.Player, numberOfPlayers)
-	var characters = make([]character.Character, numberOfPlayers*MAX_CHARACTERS_PER_PLAYER)
 
 	// generate characters list (2 for each group)
 	for i := 0; i < numberOfPlayers; i++ {
 		players[i] = player.New("Player "+strconv.Itoa(i+1), false)
 
 		for j := 0; j < MAX_CHARACTERS_PER_PLAYER; j++ {
-			characters[MAX_CHARACTERS_PER_PLAYER*i+j] = character.New(&players[i])
+			id := string('A' + i*MAX_CHARACTERS_PER_PLAYER + j)
+			players[i].AddCharacter(character.New(id, i, j))
 		}
 	}
 	fmt.Println(players)
 
-	return Setup{players, characters}
+	return Setup{players}
+}
+
+func (setup Setup) getCharacters() []character.Character {
+	var characters []character.Character
+	for _, player := range setup.Players {
+		characters = append(characters, player.GetCharacters()...)
+	}
+	return characters
 }

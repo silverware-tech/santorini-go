@@ -27,7 +27,47 @@ func New() Cell {
 	}
 }
 
-func (c *Cell) buildOn() error {
+func (c *Cell) IsEmpty() bool {
+	return c.Character == nil
+}
+
+// remove character from cell
+func (c *Cell) RemoveCharacter() {
+	c.Character = nil
+}
+
+// set character on cell
+func (c *Cell) SetCharacter(Character *character.Character) {
+	c.Character = Character
+}
+
+func (c *Cell) Print() string {
+	var s string = ""
+
+	if c.Character != nil {
+		s += c.Character.CharacterId
+	} else {
+		s += " "
+	}
+
+	switch c.Height {
+	case GROUND:
+		s += "-"
+	case L1:
+		s += "1"
+	case L2:
+		s += "2"
+	case L3:
+		s += "3"
+	case DOME:
+		s += "4"
+	}
+
+	return s
+}
+
+// build
+func (c *Cell) Build() error {
 	switch {
 	case c.Character != nil:
 		return customError.CellBuildError{
@@ -48,20 +88,4 @@ func (c *Cell) buildOn() error {
 	}
 
 	return nil
-}
-
-func (c *Cell) setWorker(Character *character.Character) {
-	c.Character = Character
-}
-
-func (c *Cell) removeWorker() {
-	c.Character = nil
-}
-
-func (c *Cell) getCharacter() *character.Character {
-	return c.Character
-}
-
-func (c *Cell) getHeight() CellStatus {
-	return c.Height
 }

@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/c2r0b/santorini.git/lib/game"
 	"os"
+
+	"github.com/c2r0b/santorini.git/lib/game"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"

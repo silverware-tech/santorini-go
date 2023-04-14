@@ -1,17 +1,13 @@
 package character
 
-import (
-	"github.com/c2r0b/santorini.git/lib/player"
-)
-
 type Character struct {
-	player *player.Player
-	X      int
-	Y      int
+	X           int
+	Y           int
+	CharacterId string
 }
 
-func New(player *player.Player) Character {
+func New(characterId string, X, Y int) Character {
 	return Character{
-		player: player,
+		X, Y, characterId,
 	}
 }
