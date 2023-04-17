@@ -2,6 +2,7 @@ package EntityManager
 
 import (
 	"fmt"
+	"github.com/c2r0b/santorini.git/lib/utility"
 
 	"github.com/c2r0b/santorini.git/lib/EntityManager/cell"
 	"github.com/c2r0b/santorini.git/lib/character"
@@ -14,8 +15,8 @@ type Board struct {
 }
 
 // field cell getter
-func (b Board) GetCell(x int, y int) *cell.Cell {
-	return &b.field[x][y]
+func (b Board) GetCell(point utility.Point) *cell.Cell {
+	return &b.field[point.X][point.Y]
 }
 
 func NewBoard(xSize int, ySize int) Board {
@@ -83,44 +84,53 @@ func (b Board) Print() {
 	}
 }
 
-func (b Board) IsNear(p *character.Character, x int, y int) bool {
-	// player cannot stand still
-	if p.X == x && p.Y == y {
-		return false
-	}
-
-	// player can move only to adjacent cells
-	if x > p.X+1 || x < p.X-1 || y > p.Y+1 || y < p.Y-1 {
-		return false
-	}
-
-	return true
-}
-
-func (b Board) IsPositionValid(character *character.Character, x int, y int) bool {
-	if !b.field[x][y].IsEmpty() {
-		return false
-	}
-	if !b.IsNear(character, x, y) {
-		return false
-	}
-	if b.field[character.X][character.Y].Height < b.field[x][y].Height-1 {
+// IsValidMove check if the moveDest is a valid position, to be a valid position the destination must be
+// in the board bounds, near the player, empty (no other player present) and the increase in height must be at max 1
+func (b Board) IsValidMove(characterPosition, moveDest utility.Point) bool {
+	if b.IsOutOfBound(moveDest) ||
+		!characterPosition.IsNear(moveDest) ||
+		!b.GetCell(moveDest).IsEmpty() ||
+		b.GetCell(characterPosition).Height < b.GetCell(moveDest).Height-1 {
 		return false
 	}
 	return true
 }
 
-func (b Board) MoveCharacter(character *character.Character, x int, y int) {
-	b.field[character.X][character.Y].RemoveCharacter()
-	b.field[x][y].SetCharacter(character)
-	character.X = x
-	character.Y = y
+/*
+IsValidBuild check if the buildPosition is a valid position. A valid build position match some requirement:
+- the destination must be in the board bounds
+- near the player
+- empty (no other player present)
+- there is no DOME
+*/
+func (b Board) IsValidBuild(characterPosition, buildPosition utility.Point) bool {
+	if characterPosition.IsNotNear(buildPosition) ||
+		b.IsOutOfBound(buildPosition) ||
+		b.GetCell(buildPosition).IsNotEmpty() ||
+		b.GetCell(buildPosition).Height == cell.DOME {
+		return false
+	}
+	return true
+}
+
+func (b Board) MoveCharacter(character *character.Character, moveDest utility.Point) {
+	b.GetCell(character.Position).RemoveCharacter()
+	b.GetCell(moveDest).SetCharacter(character)
+	character.Position = moveDest
 }
 
 func (b Board) SetCharacter(character *character.Character) {
-	b.field[character.X][character.Y].SetCharacter(character)
+	b.GetCell(character.Position).SetCharacter(character)
 }
 
-func (b Board) Build(x int, y int) error {
-	return b.field[x][y].Build()
+func (b Board) Build(build utility.Point) {
+	b.GetCell(build).Build()
+}
+
+func (b Board) IsOutOfBound(point utility.Point) bool {
+	return point.X < 0 || point.X > b.xSize || point.Y > b.ySize || point.Y < 0
+}
+
+func (b Board) IsOver(destination utility.Point) bool {
+	return b.GetCell(destination).Height == cell.L3
 }

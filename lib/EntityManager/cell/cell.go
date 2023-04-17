@@ -31,18 +31,22 @@ func (c *Cell) IsEmpty() bool {
 	return c.Character == nil
 }
 
-// remove character from cell
+func (c *Cell) IsNotEmpty() bool {
+	return !c.IsEmpty()
+}
+
+// RemoveCharacter remove character from cell
 func (c *Cell) RemoveCharacter() {
 	c.Character = nil
 }
 
-// set character on cell
+// SetCharacter set character on cell
 func (c *Cell) SetCharacter(Character *character.Character) {
 	c.Character = Character
 }
 
 func (c *Cell) Print() string {
-	var s string = ""
+	s := ""
 
 	if c.Character != nil {
 		s += c.Character.CharacterId

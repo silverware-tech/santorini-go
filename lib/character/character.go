@@ -1,13 +1,15 @@
 package character
 
+import "github.com/c2r0b/santorini.git/lib/utility"
+
 type Character struct {
-	X           int
-	Y           int
+	Position    utility.Point
 	CharacterId string
 }
 
 func New(characterId string, X, Y int) Character {
 	return Character{
-		X, Y, characterId,
+		Position:    utility.Point{X: X, Y: Y},
+		CharacterId: characterId,
 	}
 }

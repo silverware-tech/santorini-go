@@ -2,29 +2,29 @@ package EntityManager
 
 import (
 	"errors"
+	"fmt"
+	"github.com/c2r0b/santorini.git/lib/utility"
 
 	"github.com/c2r0b/santorini.git/lib/character"
 )
 
 type EntityManager struct {
-	Board     Board
-	Character character.Character
+	Board Board
+	// Character character.Character
 }
 
 func (m EntityManager) PrintBoard() {
 	m.Board.Print()
 }
 
-func (m EntityManager) Move(character *character.Character, x int, y int) error {
-	if (x > m.Board.xSize) || (y > m.Board.ySize) {
-		return errors.New("out of bounds")
-	}
-	if m.Board.IsPositionValid(character, x, y) {
-		m.Board.MoveCharacter(character, x, y)
+func (m EntityManager) Move(character *character.Character, destination utility.Point) (bool, error) {
+	if m.Board.IsValidMove(character.Position, destination) {
+		m.Board.MoveCharacter(character, destination)
 	} else {
-		return errors.New("position not valid")
+		return false, errors.New("position not valid")
 	}
-	return nil
+
+	return m.Board.IsOver(destination), nil
 }
 
 func New(xSize, ySize int, characters []character.Character) EntityManager {
@@ -38,13 +38,11 @@ func New(xSize, ySize int, characters []character.Character) EntityManager {
 	return m
 }
 
-func (m EntityManager) Build(character *character.Character, x, y int) error {
-	if (x > m.Board.xSize) || (y > m.Board.ySize) {
-		return errors.New("out of bounds")
+func (m EntityManager) Build(character *character.Character, buildPoint utility.Point) error {
+	if m.Board.IsValidBuild(character.Position, buildPoint) {
+		m.Board.Build(buildPoint)
+	} else {
+		return errors.New(fmt.Sprintf("Build Position %s not valid", buildPoint.Print()))
 	}
-	// check if near
-	if !m.Board.IsNear(character, x, y) {
-		return errors.New("position not near")
-	}
-	return m.Board.Build(x, y)
+	return nil
 }

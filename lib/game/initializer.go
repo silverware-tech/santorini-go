@@ -2,10 +2,8 @@ package game
 
 import (
 	"fmt"
-	"strconv"
-
 	"github.com/c2r0b/santorini.git/lib/character"
-	"github.com/c2r0b/santorini.git/lib/player"
+	"github.com/c2r0b/santorini.git/lib/players"
 	"github.com/rs/zerolog/log"
 )
 
@@ -19,13 +17,13 @@ In AskSetup bisogna mettere tutte quelle cose di input iniziali:
 */
 
 type Setup struct {
-	Players []player.Player
+	Players []players.Player
 }
 
-func AskValue(message string, min, max int) int {
+func AskInt(message string, min, max int) int {
 	var value int
 	for {
-		log.Info().Msg(message)
+		fmt.Print(message)
 		scan, err := fmt.Scan(&value)
 		if scan != 1 || err != nil {
 			log.Error().Msg("Error during scan")
@@ -39,24 +37,55 @@ func AskValue(message string, min, max int) int {
 	return value
 }
 
+func AskAi(name string) bool {
+	var value bool
+	for {
+		fmt.Print("Is player " + name + " ai? (true/false): ")
+		scan, err := fmt.Scan(&value)
+		if scan != 1 || err != nil {
+			log.Error().Msg("Error during scan")
+		} else {
+			break
+		}
+	}
+	return value
+}
+
+func AskName() string {
+	fmt.Scanln()
+	fmt.Print("Player Name: ")
+	var value string
+	fmt.Scanln(&value)
+	return value
+}
+
 func AskSetup() Setup {
 
-	var numberOfPlayers = AskValue("Number of players:", MIN_PLAYERS, MAX_PLAYERS)
+	var numberOfPlayers = AskInt("Number of players: ", MIN_PLAYERS, MAX_PLAYERS)
 
-	var players = make([]player.Player, numberOfPlayers)
+	var playerList = make([]players.Player, numberOfPlayers)
 
 	// generate characters list (2 for each group)
 	for i := 0; i < numberOfPlayers; i++ {
-		players[i] = player.New("Player "+strconv.Itoa(i+1), false)
+		var playerName = AskName()
+		var isIa = AskAi(playerName)
 
-		for j := 0; j < MAX_CHARACTERS_PER_PLAYER; j++ {
-			id := string('A' + i*MAX_CHARACTERS_PER_PLAYER + j)
-			players[i].AddCharacter(character.New(id, i, j))
+		var player players.Player
+		if isIa {
+			player = players.NewAi(playerName)
+		} else {
+			player = players.NewHuman(playerName)
 		}
-	}
-	fmt.Println(players)
+		for j := 0; j < MAX_CHARACTERS_PER_PLAYER; j++ {
+			id := string(rune('A' + (i*MAX_CHARACTERS_PER_PLAYER + j)))
+			player.AddCharacter(character.New(id, i, j))
+		}
 
-	return Setup{players}
+		log.Info().Msg(fmt.Sprint(player.Print()))
+		playerList[i] = player
+	}
+
+	return Setup{playerList}
 }
 
 func (setup Setup) getCharacters() []character.Character {
