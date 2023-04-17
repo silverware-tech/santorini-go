@@ -38,9 +38,9 @@ func AskInt(message string, min, max int) int {
 }
 
 func AskAi(name string) bool {
-	var value bool
+	var value int
 	for {
-		fmt.Print("Is player " + name + " ai? (true/false): ")
+		fmt.Print("Is player " + name + " ai? (0/1): ")
 		scan, err := fmt.Scan(&value)
 		if scan != 1 || err != nil {
 			log.Error().Msg("Error during scan")
@@ -48,7 +48,7 @@ func AskAi(name string) bool {
 			break
 		}
 	}
-	return value
+	return value != 0
 }
 
 func AskName() string {
@@ -81,7 +81,7 @@ func AskSetup() Setup {
 			player.AddCharacter(character.New(id, i, j))
 		}
 
-		log.Info().Msg(fmt.Sprint(player.Print()))
+		log.Info().Msg(player.Print())
 		playerList[i] = player
 	}
 
