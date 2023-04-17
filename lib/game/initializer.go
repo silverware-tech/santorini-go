@@ -22,6 +22,11 @@ type Setup struct {
 	Players []player.Player
 }
 
+type Point struct {
+	X int
+	Y int
+}
+
 func AskValue(message string, min, max int) int {
 	var value int
 	for {
@@ -40,10 +45,12 @@ func AskValue(message string, min, max int) int {
 }
 
 func AskSetup() Setup {
-
 	var numberOfPlayers = AskValue("Number of players:", MIN_PLAYERS, MAX_PLAYERS)
 
 	var players = make([]player.Player, numberOfPlayers)
+
+	// hashset for the positions
+	var positions = make(map[Point]bool)
 
 	// generate characters list (2 for each group)
 	for i := 0; i < numberOfPlayers; i++ {
@@ -51,7 +58,22 @@ func AskSetup() Setup {
 
 		for j := 0; j < MAX_CHARACTERS_PER_PLAYER; j++ {
 			id := string('A' + i*MAX_CHARACTERS_PER_PLAYER + j)
-			players[i].AddCharacter(character.New(id, i, j))
+
+			// ask for unique position X and Y for the character on the board
+			var x, y int
+			for {
+				x = AskValue("Insert X position for character "+id+":", 0, X_SIZE-1)
+				y = AskValue("Insert Y position for character "+id+":", 0, Y_SIZE-1)
+
+				// check if the position is already occupied
+				if !positions[Point{x, y}] {
+					positions[Point{x, y}] = true
+					break
+				}
+				log.Info().Msg("The position is already occupied")
+			}
+
+			players[i].AddCharacter(character.New(id, x, y))
 		}
 	}
 	fmt.Println(players)
