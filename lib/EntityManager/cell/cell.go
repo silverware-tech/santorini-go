@@ -45,7 +45,8 @@ func (c *Cell) Print() string {
 	var s string = ""
 
 	if c.Character != nil {
-		s += c.Character.CharacterId
+		// add character id with colored background
+		s += c.Character.Color + c.Character.CharacterId + "\x1b[0m"
 	} else {
 		s += " "
 	}

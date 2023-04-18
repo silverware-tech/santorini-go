@@ -56,7 +56,7 @@ func (game *Game) Start() {
 			log.Info().Msg("Where to move (Y):")
 			fmt.Scan(&newY)
 
-			log.Info().Msgf("Move %v to position (%v,%v)\n", character, newX, newY)
+			log.Info().Msgf("Move character %v to position (%v,%v)\n", character.CharacterId, newX, newY)
 
 			err = game.EntityManager.Move(character, newX, newY)
 

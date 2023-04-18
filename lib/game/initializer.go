@@ -27,6 +27,13 @@ type Point struct {
 	Y int
 }
 
+var colors = map[uint8]string{
+	0: "\x1b[1;31m",
+	1: "\x1b[1;34m",
+	2: "\x1b[1;32m",
+	3: "\x1b[1;33m",
+}
+
 func AskValue(message string, min, max int) int {
 	var value int
 	for {
@@ -73,11 +80,9 @@ func AskSetup() Setup {
 				log.Info().Msg("The position is already occupied")
 			}
 
-			players[i].AddCharacter(character.New(id, x, y))
+			players[i].AddCharacter(character.New(id, x, y, colors[uint8(i)]))
 		}
 	}
-	fmt.Println(players)
-
 	return Setup{players}
 }
 
