@@ -2,6 +2,7 @@ package game
 
 import (
 	"fmt"
+
 	"github.com/c2r0b/santorini.git/lib/character"
 	"github.com/c2r0b/santorini.git/lib/players"
 	"github.com/rs/zerolog/log"
@@ -18,11 +19,6 @@ In AskSetup bisogna mettere tutte quelle cose di input iniziali:
 
 type Setup struct {
 	Players []players.Player
-}
-
-type Point struct {
-	X int
-	Y int
 }
 
 var colors = map[uint8]string{
@@ -77,7 +73,7 @@ func AskSetup() Setup {
 	var playerList = make([]players.Player, numberOfPlayers)
 
 	// hashset for the positions
-	var positions = make(map[Point]bool)
+	var positions = make(map[utility.Point]bool)
 
 	// generate characters list (2 for each group)
 	for i := 0; i < numberOfPlayers; i++ {
@@ -100,20 +96,20 @@ func AskSetup() Setup {
 				y = AskInt("Insert Y position for character "+id+":", 0, Y_SIZE-1)
 
 				// check if the position is already occupied
-				if !positions[Point{x, y}] {
-					positions[Point{x, y}] = true
+				if !positions[utility.Point{x, y}] {
+					positions[utility.Point{x, y}] = true
 					break
 				}
 				log.Info().Msg("The position is already occupied")
 			}
 
-			player.AddCharacter(character.New(id, i, j))
+			player.AddCharacter(character.New(id, x, y, colors[uint8(i)]))
 		}
 
 		log.Info().Msg(player.Print())
 		playerList[i] = player
 	}
-  
+
 	return Setup{playerList}
 }
 
