@@ -11,7 +11,7 @@ type PlayerMoveError struct {
 
 func (error PlayerMoveError) Error() string {
 	return fmt.Sprintf(
-		"Can not move player \"%v\" to position (%v, %v): %v",
+		"Can not move players \"%v\" to position (%v, %v): %v",
 		error.PlayerName,
 		error.PlayerX,
 		error.PlayerY,

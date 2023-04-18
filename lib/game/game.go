@@ -1,12 +1,8 @@
 package game
 
 import (
-	"fmt"
-
 	"github.com/c2r0b/santorini.git/lib/EntityManager"
-	"github.com/c2r0b/santorini.git/lib/EntityManager/cell"
-	"github.com/c2r0b/santorini.git/lib/character"
-	"github.com/c2r0b/santorini.git/lib/player"
+	"github.com/c2r0b/santorini.git/lib/players"
 	"github.com/rs/zerolog/log"
 )
 
@@ -18,7 +14,7 @@ const MAX_CHARACTERS_PER_PLAYER = 2
 const MAX_CHARACTERS = MAX_PLAYERS * MAX_CHARACTERS_PER_PLAYER
 
 type Game struct {
-	Players       []player.Player
+	Players       []players.Player
 	EntityManager EntityManager.EntityManager
 }
 
@@ -30,71 +26,34 @@ func New(setup Setup) Game {
 }
 
 func (game *Game) Start() {
-	i := 0
+	turn := 0
 	for {
-		i = i % len(game.Players)
-		var newX, newY int
-		var characterId string
-		var player = game.Players[i]
+		var player = game.Players[turn%len(game.Players)]
 
-		log.Info().Msgf("%s turn", player.Name)
-		for {
-			game.EntityManager.PrintBoard()
-			for {
-				log.Info().Msg("Choose a character:")
-				fmt.Scan(&characterId)
-				if player.HasCharacter(characterId) {
-					break
-				}
-				log.Info().Msg("Invalid character")
-			}
+		log.Info().Msgf("%s turn. %d", player.GetName(), turn)
 
-			var character, err = player.GetCharacter(characterId)
+		var character, moveDestination, buildPoint = player.DoTurn(game.EntityManager)
 
-			log.Info().Msg("Where to move (X):")
-			fmt.Scan(&newX)
-			log.Info().Msg("Where to move (Y):")
-			fmt.Scan(&newY)
+		endGame, err := game.EntityManager.Move(character, moveDestination)
 
-			log.Info().Msgf("Move %v to position (%v,%v)\n", character, newX, newY)
-
-			err = game.EntityManager.Move(character, newX, newY)
-
-			if err != nil {
-				log.Info().Msg(err.Error())
-			} else {
-				log.Info().Msgf("Player %v moved", game.Players[i].Name)
-				if game.IsOver(character) {
-					log.Info().Msgf("Player %v won", game.Players[i].Name)
-					return
-				}
-
-				// ask user where to build a block to increase the height of a cell
-				for {
-					game.EntityManager.PrintBoard()
-					log.Info().Msg("Where to build (X):")
-					fmt.Scan(&newX)
-					log.Info().Msg("Where to build (Y):")
-					fmt.Scan(&newY)
-
-					log.Info().Msgf("Build a block at position (%v,%v)\n", newX, newY)
-
-					err = game.EntityManager.Build(character, newX, newY)
-
-					if err != nil {
-						log.Info().Msg(err.Error())
-					} else {
-						log.Info().Msgf("Player %v built a block", game.Players[i].Name)
-						break
-					}
-				}
-				i++
-				break
-			}
+		if err != nil {
+			log.Info().Msg(err.Error())
+			return
 		}
-	}
-}
+		if endGame {
+			log.Info().Msgf("Player %v won", player.GetName())
+			return
+		}
 
-func (game *Game) IsOver(character *character.Character) bool {
-	return game.EntityManager.Board.GetCell(character.X, character.Y).Height == cell.L3
+		// ask user where to build a block to increase the height of a cell
+		err = game.EntityManager.Build(character, buildPoint)
+		if err != nil {
+			log.Info().Msg(err.Error())
+			return
+		}
+
+		log.Info().Msgf("Player %v built a block", player.GetName())
+
+		turn++
+	}
 }
