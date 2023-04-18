@@ -5,11 +5,13 @@ import "github.com/c2r0b/santorini.git/lib/utility"
 type Character struct {
 	Position    utility.Point
 	CharacterId string
+	Color       string
 }
 
-func New(characterId string, X, Y int) Character {
+func New(characterId string, X, Y int, Color string) Character {
 	return Character{
 		Position:    utility.Point{X: X, Y: Y},
-		CharacterId: characterId,
+	  CharacterId: characterId,
+    Color,
 	}
 }
