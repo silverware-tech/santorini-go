@@ -2,6 +2,9 @@ package game
 
 import (
 	"fmt"
+
+	"github.com/c2r0b/santorini.git/lib/utility"
+
 	"github.com/c2r0b/santorini.git/lib/character"
 	"github.com/c2r0b/santorini.git/lib/players"
 	"github.com/rs/zerolog/log"
@@ -18,6 +21,13 @@ In AskSetup bisogna mettere tutte quelle cose di input iniziali:
 
 type Setup struct {
 	Players []players.Player
+}
+
+var colors = map[uint8]string{
+	0: "\x1b[1;31m",
+	1: "\x1b[1;34m",
+	2: "\x1b[1;32m",
+	3: "\x1b[1;33m",
 }
 
 func AskInt(message string, min, max int) int {
@@ -60,10 +70,12 @@ func AskName() string {
 }
 
 func AskSetup() Setup {
-
 	var numberOfPlayers = AskInt("Number of players: ", MIN_PLAYERS, MAX_PLAYERS)
 
 	var playerList = make([]players.Player, numberOfPlayers)
+
+	// hashset for the positions
+	var positions = make(map[utility.Point]bool)
 
 	// generate characters list (2 for each group)
 	for i := 0; i < numberOfPlayers; i++ {
@@ -78,7 +90,22 @@ func AskSetup() Setup {
 		}
 		for j := 0; j < MAX_CHARACTERS_PER_PLAYER; j++ {
 			id := string(rune('A' + (i*MAX_CHARACTERS_PER_PLAYER + j)))
-			player.AddCharacter(character.New(id, i, j))
+
+			// ask for unique position X and Y for the character on the board
+			var x, y int
+			for {
+				x = AskInt("Insert X position for character "+id+":", 0, X_SIZE-1)
+				y = AskInt("Insert Y position for character "+id+":", 0, Y_SIZE-1)
+
+				// check if the position is already occupied
+				if !positions[utility.Point{x, y}] {
+					positions[utility.Point{x, y}] = true
+					break
+				}
+				log.Info().Msg("The position is already occupied")
+			}
+
+			player.AddCharacter(character.New(id, x, y, colors[uint8(i)]))
 		}
 
 		log.Info().Msg(player.Print())
