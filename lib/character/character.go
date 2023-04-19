@@ -8,10 +8,10 @@ type Character struct {
 	Color       string
 }
 
-func New(characterId string, X, Y int, Color string) Character {
+func New(characterId string, X, Y int, color string) Character {
 	return Character{
 		Position:    utility.Point{X: X, Y: Y},
-	  CharacterId: characterId,
-    Color,
+		CharacterId: characterId,
+		Color:       color,
 	}
 }

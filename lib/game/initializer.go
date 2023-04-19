@@ -3,6 +3,8 @@ package game
 import (
 	"fmt"
 
+	"github.com/c2r0b/santorini.git/lib/utility"
+
 	"github.com/c2r0b/santorini.git/lib/character"
 	"github.com/c2r0b/santorini.git/lib/players"
 	"github.com/rs/zerolog/log"
