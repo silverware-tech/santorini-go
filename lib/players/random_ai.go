@@ -1,15 +1,14 @@
 package players
 
 import (
+	"errors"
 	"fmt"
-	"math/rand"
-	"time"
-
 	"github.com/c2r0b/santorini.git/lib/EntityManager"
 	"github.com/c2r0b/santorini.git/lib/character"
 	"github.com/c2r0b/santorini.git/lib/utility"
-
 	"github.com/rs/zerolog/log"
+	"math/rand"
+	"time"
 )
 
 // This type implement the Player Interface
@@ -20,45 +19,68 @@ type RandomAi struct {
 	Rand       *rand.Rand
 }
 
-func NewRandomAi(Name string) *RandomAi {
+func (ai *RandomAi) New(Name string) Player {
 	s := rand.NewSource(time.Now().Unix())
-	ai := RandomAi{
+	return &RandomAi{
 		Name,
 		make([]character.Character, 0),
 		rand.New(s),
 	}
-	return &ai
+}
+
+func (ai *RandomAi) NewWithCharacters(Name string, characters []character.Character) Player {
+	s := rand.NewSource(time.Now().Unix())
+	return &RandomAi{
+		Name,
+		characters,
+		rand.New(s),
+	}
 }
 
 func (ai *RandomAi) GetName() string {
 	return ai.Name
 }
 
-func (ai *RandomAi) DoTurn(em EntityManager.EntityManager) (*character.Character, utility.Point, utility.Point) {
-	log.Info().Msgf("Start AI")
+func (ai *RandomAi) DoTurn(em EntityManager.EntityManager) (*character.Character, utility.Point, utility.Point, error) {
 	em.PrintBoard()
 
 	var selectedCharacter *character.Character
 	var destPoint, buildPoint utility.Point
 
-	selectedCharacter = &ai.Characters[ai.Rand.Intn(len(ai.Characters))]
-	log.Debug().Msgf("Character %s", selectedCharacter.CharacterId)
+	var characterIndex = ai.Rand.Intn(len(ai.Characters))
 
-	movePoints := em.GetAvailableMove(selectedCharacter.Position)
-	log.Debug().Msgf("Available moves %v", movePoints)
-	destPoint = movePoints[ai.Rand.Intn(len(movePoints))]
-	log.Debug().Msgf("selected %s", destPoint.Print())
+	var i int
+	for i = 0; i < utility.MAX_CHARACTERS_PER_PLAYER; i++ {
+		selectedCharacter = &ai.Characters[(characterIndex+i)%utility.MAX_CHARACTERS_PER_PLAYER]
+		log.Debug().Msgf("Character %s", selectedCharacter.CharacterId)
 
-	if em.Board.IsOver(destPoint) {
-		return selectedCharacter, destPoint, destPoint
+		movePoints := em.GetAvailableMove(selectedCharacter.Position)
+		log.Debug().Msgf("Available moves %v", movePoints)
+
+		// The selected player is currently unusable
+		if len(movePoints) == 0 {
+			log.Debug().Msg("No available moves for this character")
+			continue
+		}
+		destPoint = movePoints[ai.Rand.Intn(len(movePoints))]
+		log.Debug().Msgf("selected %s", destPoint.Print())
+		break // The player is usable go to build phase
 	}
 
-	buildPoints := em.GetAvailableBuild(destPoint)
+	if i >= utility.MAX_CHARACTERS_PER_PLAYER {
+		return selectedCharacter, selectedCharacter.Position, selectedCharacter.Position, errors.New("no available movements")
+	}
+
+	if em.Board.IsWinner(destPoint) {
+		return selectedCharacter, destPoint, destPoint, nil
+	}
+
+	buildPoints := em.GetAvailableBuild(selectedCharacter.Position, destPoint)
 	log.Debug().Msgf("Available build %v", buildPoints)
 	buildPoint = buildPoints[ai.Rand.Intn(len(buildPoints))]
 	log.Debug().Msgf("selected %s", buildPoint.Print())
 
-	return selectedCharacter, destPoint, buildPoint
+	return selectedCharacter, destPoint, buildPoint, nil
 }
 
 func (ai *RandomAi) GetCharacters() []character.Character {

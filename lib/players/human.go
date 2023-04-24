@@ -4,10 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/c2r0b/santorini.git/lib/EntityManager"
+	"github.com/c2r0b/santorini.git/lib/character"
 	"github.com/c2r0b/santorini.git/lib/utility"
 	"github.com/rs/zerolog/log"
-
-	"github.com/c2r0b/santorini.git/lib/character"
 )
 
 // This type implement the Player Interface
@@ -17,16 +16,19 @@ type Human struct {
 	Characters []character.Character
 }
 
-func NewHuman(Name string) *Human {
-	human := Human{Name, make([]character.Character, 0)}
-	return &human
+func (human *Human) New(Name string) Player {
+	return &Human{Name, make([]character.Character, 0)}
+}
+
+func (human *Human) NewWithCharacters(Name string, characters []character.Character) Player {
+	return &Human{Name: Name, Characters: characters}
 }
 
 func (human *Human) GetName() string {
 	return human.Name
 }
 
-func (human *Human) DoTurn(em EntityManager.EntityManager) (*character.Character, utility.Point, utility.Point) {
+func (human *Human) DoTurn(em EntityManager.EntityManager) (*character.Character, utility.Point, utility.Point, error) {
 	em.PrintBoard()
 
 	var character *character.Character
@@ -43,8 +45,8 @@ func (human *Human) DoTurn(em EntityManager.EntityManager) (*character.Character
 		}
 	}
 
-	if em.Board.IsOver(destPoint) {
-		return character, destPoint, destPoint
+	if em.Board.IsWinner(destPoint) {
+		return character, destPoint, destPoint, nil
 	}
 
 	for {
@@ -56,7 +58,7 @@ func (human *Human) DoTurn(em EntityManager.EntityManager) (*character.Character
 		}
 	}
 
-	return character, destPoint, buildPoint
+	return character, destPoint, buildPoint, nil
 }
 
 func (human *Human) GetCharacters() []character.Character {
@@ -102,7 +104,7 @@ func (human *Human) GetCharacter(characterId string) (*character.Character, erro
 			return &human.Characters[i], nil
 		}
 	}
-	return nil, errors.New("Character not found")
+	return nil, errors.New("character not found")
 }
 
 func (human *Human) HasCharacter(characterId string) bool {

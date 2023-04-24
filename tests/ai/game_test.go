@@ -5,48 +5,41 @@ import (
 	"github.com/c2r0b/santorini.git/lib/game"
 	"github.com/c2r0b/santorini.git/lib/players"
 	"github.com/c2r0b/santorini.git/lib/utility"
-	"math/rand"
 	"testing"
-	"time"
 )
 
 func TestRandomAi(t *testing.T) {
-
-	setup := game.Setup{
-		Players: []players.Player{
-			&players.RandomAi{
-				Name: "AI 1",
-				Characters: []character.Character{
-					{
-						Position:    utility.Point{0, 0},
-						CharacterId: "A",
-					},
-					{
-						Position:    utility.Point{1, 1},
-						CharacterId: "B",
-					},
-				},
-				Rand: rand.New(rand.NewSource(time.Now().Unix())),
-			},
-			&players.RandomAi{
-				Name: "AI 2",
-				Characters: []character.Character{
-					{
-						Position:    utility.Point{3, 3},
-						CharacterId: "C",
-					},
-					{
-						Position:    utility.Point{4, 4},
-						CharacterId: "D",
-					},
-				},
-				Rand: rand.New(rand.NewSource(time.Now().Unix())),
-			},
+	ai1Characters := []character.Character{
+		{
+			Position:    utility.Point{0, 0},
+			CharacterId: "A",
+		},
+		{
+			Position:    utility.Point{1, 1},
+			CharacterId: "B",
+		},
+	}
+	ai2Characters := []character.Character{
+		{
+			Position:    utility.Point{3, 3},
+			CharacterId: "C",
+		},
+		{
+			Position:    utility.Point{4, 4},
+			CharacterId: "D",
 		},
 	}
 
-	gameManager := game.New(setup)
+	setup := game.Setup{
+		Players: []players.Player{
+			(&players.RandomAi{}).NewWithCharacters("AI 1", ai1Characters),
+			(&players.RandomAi{}).NewWithCharacters("AI 2", ai2Characters),
+		},
+	}
 
-	gameManager.Start()
-
+	var gameManager game.Game
+	for i := 0; i < 1000; i++ {
+		gameManager = game.New(setup)
+		gameManager.Start()
+	}
 }

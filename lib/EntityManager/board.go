@@ -2,12 +2,11 @@ package EntityManager
 
 import (
 	"fmt"
+	"github.com/c2r0b/santorini.git/lib/EntityManager/cell"
+	"github.com/c2r0b/santorini.git/lib/character"
 	"github.com/c2r0b/santorini.git/lib/utility"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/sys/unix"
-
-	"github.com/c2r0b/santorini.git/lib/EntityManager/cell"
-	"github.com/c2r0b/santorini.git/lib/character"
 )
 
 type Board struct {
@@ -25,7 +24,7 @@ func (b Board) GetNearPoints(characterPos utility.Point) []utility.Point {
 	return points
 }
 
-// field cell getter
+// GetCell field cell getter
 func (b Board) GetCell(point utility.Point) *cell.Cell {
 	if b.IsOutOfBound(point) {
 		log.Panic().Msgf("Point %s is out of bound", point)
@@ -153,6 +152,6 @@ func (b Board) IsOutOfBound(point utility.Point) bool {
 		point.Y < 0 || point.Y > b.ySize-1
 }
 
-func (b Board) IsOver(destination utility.Point) bool {
+func (b Board) IsWinner(destination utility.Point) bool {
 	return b.GetCell(destination).Height == cell.L3
 }

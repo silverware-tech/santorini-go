@@ -49,3 +49,7 @@ func AskPoint() Point {
 func AddPoints(a, b Point) Point {
 	return Point{a.X + b.X, a.Y + b.Y}
 }
+
+func Equals(a, b Point) bool {
+	return a.X == b.X && a.Y == b.Y
+}
