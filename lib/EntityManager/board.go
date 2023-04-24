@@ -3,15 +3,26 @@ package EntityManager
 import (
 	"fmt"
 	"github.com/c2r0b/santorini.git/lib/utility"
+	"github.com/rs/zerolog/log"
+	"golang.org/x/sys/unix"
 
 	"github.com/c2r0b/santorini.git/lib/EntityManager/cell"
 	"github.com/c2r0b/santorini.git/lib/character"
 )
 
 type Board struct {
-	xSize int
-	ySize int
-	field [][]cell.Cell
+	xSize      int
+	ySize      int
+	field      [][]cell.Cell
+	nearMatrix []utility.Point
+}
+
+func (b Board) GetNearPoints(characterPos utility.Point) []utility.Point {
+	var points []utility.Point
+	for _, p := range b.nearMatrix {
+		points = append(points, utility.AddPoints(characterPos, p))
+	}
+	return points
 }
 
 // field cell getter
@@ -36,6 +47,12 @@ func NewBoard(xSize int, ySize int) Board {
 		for j := 0; j < b.ySize; j++ {
 			b.field[i][j] = cell.New()
 		}
+	}
+
+	b.nearMatrix = []utility.Point{
+		{-1, -1}, {0, -1}, {1, -1},
+		{-1, 0}, {1, 0},
+		{-1, 1}, {0, 1}, {1, 1},
 	}
 
 	return b

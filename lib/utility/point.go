@@ -22,7 +22,7 @@ func (p Point) IsNotNear(dest Point) bool {
 }
 
 func (p Point) Print() string {
-	return fmt.Sprintf("(%d,%d)", p.X, p.Y)
+	return fmt.Sprintf("(%d, %d)", p.X, p.Y)
 }
 
 func AskDestination() Point {
@@ -44,4 +44,8 @@ func AskPoint() Point {
 	fmt.Print("Y:")
 	fmt.Scan(&y)
 	return Point{x, y}
+}
+
+func AddPoints(a, b Point) Point {
+	return Point{a.X + b.X, a.Y + b.Y}
 }

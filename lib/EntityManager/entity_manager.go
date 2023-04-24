@@ -4,13 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"github.com/c2r0b/santorini.git/lib/utility"
+	"github.com/rs/zerolog/log"
 
 	"github.com/c2r0b/santorini.git/lib/character"
 )
 
 type EntityManager struct {
 	Board Board
-	// Character character.Character
 }
 
 func (m EntityManager) PrintBoard() {
@@ -45,4 +45,31 @@ func (m EntityManager) Build(character *character.Character, buildPoint utility.
 		return errors.New(fmt.Sprintf("Build Position %s not valid", buildPoint.Print()))
 	}
 	return nil
+}
+
+func (m EntityManager) GetAvailableMove(position utility.Point) []utility.Point {
+	var points = m.Board.GetNearPoints(position)
+	var available []utility.Point
+
+	for _, point := range points {
+		if m.Board.IsValidMove(position, point) {
+			available = append(available, point)
+		}
+	}
+
+	return available
+}
+
+func (m EntityManager) GetAvailableBuild(position utility.Point) []utility.Point {
+
+	var points = m.Board.GetNearPoints(position)
+	var available []utility.Point
+	log.Debug().Msgf("NearBuilds %v", points)
+	for _, point := range points {
+		if m.Board.IsValidBuild(position, point) {
+			available = append(available, point)
+		}
+	}
+
+	return available
 }
