@@ -16,6 +16,10 @@ type Board struct {
 
 // field cell getter
 func (b Board) GetCell(point utility.Point) *cell.Cell {
+	if b.IsOutOfBound(point) {
+		log.Panic().Msgf("Point %s is out of bound", point)
+		unix.Exit(-1)
+	}
 	return &b.field[point.X][point.Y]
 }
 
@@ -104,8 +108,8 @@ IsValidBuild check if the buildPosition is a valid position. A valid build posit
 - there is no DOME
 */
 func (b Board) IsValidBuild(characterPosition, buildPosition utility.Point) bool {
-	if characterPosition.IsNotNear(buildPosition) ||
-		b.IsOutOfBound(buildPosition) ||
+	if b.IsOutOfBound(buildPosition) ||
+		characterPosition.IsNotNear(buildPosition) ||
 		b.GetCell(buildPosition).IsNotEmpty() ||
 		b.GetCell(buildPosition).Height == cell.DOME {
 		return false
@@ -128,7 +132,8 @@ func (b Board) Build(build utility.Point) {
 }
 
 func (b Board) IsOutOfBound(point utility.Point) bool {
-	return point.X < 0 || point.X > b.xSize || point.Y > b.ySize || point.Y < 0
+	return point.X < 0 || point.X > b.xSize-1 ||
+		point.Y < 0 || point.Y > b.ySize-1
 }
 
 func (b Board) IsOver(destination utility.Point) bool {

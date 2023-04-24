@@ -70,3 +70,37 @@ func TestIsValidBuild(t *testing.T) {
 		})
 	}
 }
+
+func TestIsOutOfBound(t *testing.T) {
+	var board = EntityManager.NewBoard(5, 5)
+	board.SetCharacter(&character.Character{CharacterId: "A", Position: utility.Point{2, 2}})
+	board.SetCharacter(&character.Character{CharacterId: "B", Position: utility.Point{2, 1}})
+	board.SetCharacter(&character.Character{CharacterId: "C", Position: utility.Point{0, 0}})
+
+	// Defining the columns of the table
+	var tests = []struct {
+		point    utility.Point
+		expected bool
+	}{
+		// the table itself
+		{utility.Point{2, 0}, false},
+		{utility.Point{2, 1}, false},
+		{utility.Point{-1, 0}, true},
+		{utility.Point{3, 5}, true},
+		{utility.Point{3, 4}, false},
+		{utility.Point{-1, -4}, true},
+		{utility.Point{0, 4}, false},
+		{utility.Point{0, 5}, true},
+		{utility.Point{5, 0}, true},
+	}
+	// The execution loop
+	for i, tt := range tests {
+		t.Run(fmt.Sprintf("Check IsOutOfBound %d", i), func(t *testing.T) {
+			ans := board.IsOutOfBound(tt.point)
+			if ans != tt.expected {
+				t.Errorf("got %t, want %t", ans, tt.expected)
+			}
+		})
+	}
+
+}
