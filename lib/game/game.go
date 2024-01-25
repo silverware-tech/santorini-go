@@ -1,17 +1,12 @@
 package game
 
 import (
+	"fmt"
 	"github.com/c2r0b/santorini.git/lib/EntityManager"
 	"github.com/c2r0b/santorini.git/lib/players"
+	"github.com/c2r0b/santorini.git/lib/utility"
 	"github.com/rs/zerolog/log"
 )
-
-const X_SIZE = 5
-const Y_SIZE = 5
-const MIN_PLAYERS = 2
-const MAX_PLAYERS = 4
-const MAX_CHARACTERS_PER_PLAYER = 2
-const MAX_CHARACTERS = MAX_PLAYERS * MAX_CHARACTERS_PER_PLAYER
 
 type Game struct {
 	Players       []players.Player
@@ -20,7 +15,7 @@ type Game struct {
 
 func New(setup Setup) Game {
 	// generate game EntityManager
-	entityManager := EntityManager.New(X_SIZE, Y_SIZE, setup.getCharacters())
+	entityManager := EntityManager.New(utility.X_SIZE, utility.Y_SIZE, setup.getCharacters())
 	g := Game{setup.Players, entityManager}
 	return g
 }
@@ -32,12 +27,17 @@ func (game *Game) Start() {
 
 		log.Info().Msgf("%s turn. %d", player.GetName(), turn)
 
-		var character, moveDestination, buildPoint = player.DoTurn(game.EntityManager)
+		selectedCharacter, moveDestination, buildPoint, err := player.DoTurn(game.EntityManager)
+		if err != nil {
+			log.Error().Msg(err.Error())
+			fmt.Printf("Player %s loose", player.GetName())
+			return
+		}
 
-		endGame, err := game.EntityManager.Move(character, moveDestination)
+		endGame, err := game.EntityManager.Move(selectedCharacter, moveDestination)
 
 		if err != nil {
-			log.Info().Msg(err.Error())
+			log.Error().Msg(err.Error())
 			return
 		}
 		if endGame {
@@ -46,7 +46,7 @@ func (game *Game) Start() {
 		}
 
 		// ask user where to build a block to increase the height of a cell
-		err = game.EntityManager.Build(character, buildPoint)
+		err = game.EntityManager.Build(selectedCharacter, buildPoint)
 		if err != nil {
 			log.Info().Msg(err.Error())
 			return

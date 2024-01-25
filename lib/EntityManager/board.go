@@ -2,20 +2,34 @@ package EntityManager
 
 import (
 	"fmt"
-	"github.com/c2r0b/santorini.git/lib/utility"
-
 	"github.com/c2r0b/santorini.git/lib/EntityManager/cell"
 	"github.com/c2r0b/santorini.git/lib/character"
+	"github.com/c2r0b/santorini.git/lib/utility"
+	"github.com/rs/zerolog/log"
+	"golang.org/x/sys/unix"
 )
 
 type Board struct {
-	xSize int
-	ySize int
-	field [][]cell.Cell
+	xSize      int
+	ySize      int
+	field      [][]cell.Cell
+	nearMatrix []utility.Point
 }
 
-// field cell getter
+func (b Board) GetNearPoints(characterPos utility.Point) []utility.Point {
+	var points []utility.Point
+	for _, p := range b.nearMatrix {
+		points = append(points, utility.AddPoints(characterPos, p))
+	}
+	return points
+}
+
+// GetCell field cell getter
 func (b Board) GetCell(point utility.Point) *cell.Cell {
+	if b.IsOutOfBound(point) {
+		log.Panic().Msgf("Point %s is out of bound", point)
+		unix.Exit(-1)
+	}
 	return &b.field[point.X][point.Y]
 }
 
@@ -32,6 +46,12 @@ func NewBoard(xSize int, ySize int) Board {
 		for j := 0; j < b.ySize; j++ {
 			b.field[i][j] = cell.New()
 		}
+	}
+
+	b.nearMatrix = []utility.Point{
+		{-1, -1}, {0, -1}, {1, -1},
+		{-1, 0}, {1, 0},
+		{-1, 1}, {0, 1}, {1, 1},
 	}
 
 	return b
@@ -104,8 +124,8 @@ IsValidBuild check if the buildPosition is a valid position. A valid build posit
 - there is no DOME
 */
 func (b Board) IsValidBuild(characterPosition, buildPosition utility.Point) bool {
-	if characterPosition.IsNotNear(buildPosition) ||
-		b.IsOutOfBound(buildPosition) ||
+	if b.IsOutOfBound(buildPosition) ||
+		characterPosition.IsNotNear(buildPosition) ||
 		b.GetCell(buildPosition).IsNotEmpty() ||
 		b.GetCell(buildPosition).Height == cell.DOME {
 		return false
@@ -128,9 +148,10 @@ func (b Board) Build(build utility.Point) {
 }
 
 func (b Board) IsOutOfBound(point utility.Point) bool {
-	return point.X < 0 || point.X > b.xSize || point.Y > b.ySize || point.Y < 0
+	return point.X < 0 || point.X > b.xSize-1 ||
+		point.Y < 0 || point.Y > b.ySize-1
 }
 
-func (b Board) IsOver(destination utility.Point) bool {
+func (b Board) IsWinner(destination utility.Point) bool {
 	return b.GetCell(destination).Height == cell.L3
 }

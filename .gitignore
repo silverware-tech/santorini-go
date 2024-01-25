@@ -6,4 +6,5 @@
 /.idea/modules.xml
 /.idea/santorini.iml
 /.idea/vcs.xml
+/lib/pkg/**
 santorini.git
